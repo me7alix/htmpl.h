@@ -123,6 +123,7 @@ void compile_template(
 ) {
 	StringBuilder compressed_html = sb_create(128);
 	char *file_str = file_read(input_file);
+	char *file_str_p = file_str;
 	if (file_str == NULL) {
 		fprintf(stderr, "Reading file error\n");
 		exit(1);
@@ -137,7 +138,7 @@ void compile_template(
 		}
 	}
 
-	//free(file_str);
+	free(file_str_p);
 
 	char *tmpl_str = compressed_html.str;
 
