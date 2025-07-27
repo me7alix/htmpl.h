@@ -55,7 +55,7 @@ Rendered page:
 ## Features
 
 - **Header-only:** Just include the header in your project.
-- **Simple template macro:** Write `HTML("...")` or `HTML(`...`)` blocks inline in your C code.
+- **Simple template macro:** Write `HTML("...")` or ```HTML(`...`)``` blocks inline in your C code.
 - **Template compiler:** Convert HTML templates into C macros at compile time.
 - **Minimal dependencies:** Only relies on the standard C library.
 - **StringBuilder utilities:** Efficient string building with dynamic resizing.
