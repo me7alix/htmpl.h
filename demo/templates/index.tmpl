@@ -3,7 +3,7 @@
 		<title>Website</title>
 	</head>
 	<body>
-		<div style="border: 1px solid #000">
+		<div style="border: 1px solid #000;">
 			<h1>Demo</h1>
 			$ {
 				HTML("<h2>Hi, %s</h2>", name);
@@ -11,11 +11,11 @@
 		</div>
 		
 		$ {
-			HTML("<h3>Number of items: %i<h3>", cnt);
+			HTML("<h3>Number of items: %i</h3>", cnt);
 			for (int i = 0; i < cnt; i++) {
-				HTML("
-					<p>Item № %i</p>
-				", i + 1);
+				HTML(`
+					<p style="color: red;">Item № \`%i\`</p>
+				`, i + 1);
 			}
 		}
 	</body>

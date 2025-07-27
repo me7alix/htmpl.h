@@ -5,26 +5,26 @@
 Template:
 ```
 <!DOCTYPE html>
-    <head>
-        <title>Website</title>
-    </head>
-    <body>
-        <div style="border: 1px solid #000">
-            <h1>Demo</h1>
-            $ {
-                HTML("<h2>Hi, %s</h2>", name);
-            }
-        </div>
-        
+<head>
+    <title>Website</title>
+</head>
+<body>
+    <div style="border: 1px solid #000">
+        <h1>Demo</h1>
         $ {
-            HTML("Number of items: %i", cnt);
-            for (int i = 0; i < cnt; i++) {
-                HTML("
-                    <p>Item № %i</p>
-                ", i + 1);
-            }
+            HTML("<h2>Hi, %s</h2>", name);
         }
-    </body>
+    </div>
+        
+    $ {
+        HTML("<h3>Number of items: %i</h3>", cnt);
+        for (int i = 0; i < cnt; i++) {
+            HTML(`
+                <p style="color: red;">Item № \`%i\`</p>
+            `, i + 1);
+        }
+    }
+</body>
 </html>
 ```
 
@@ -55,7 +55,7 @@ Rendered page:
 ## Features
 
 - **Header-only:** Just include the header in your project.
-- **Simple template macro:** Write `HTML("...")` blocks inline in your C code.
+- **Simple template macro:** Write `HTML("...")` or `HTML(```...```)` blocks inline in your C code.
 - **Template compiler:** Convert HTML templates into C macros at compile time.
 - **Minimal dependencies:** Only relies on the standard C library.
 - **StringBuilder utilities:** Efficient string building with dynamic resizing.

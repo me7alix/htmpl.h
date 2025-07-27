@@ -153,14 +153,27 @@ void compile_template(
 	sb_append_str(&tmpl, "l_html = sb_create(128);");
 
 	bool c_code = false;
+	bool bquotes = false;
 	int br_cnt = 0;
 
 	StringBuilder code = sb_create(64);
 	StringBuilder html = sb_create(64);
 
 	while (*tmpl_str != '\0') {
-		if (c_code && *tmpl_str != '\n')
-			sb_append_char(&code, *tmpl_str);
+		if (c_code && *tmpl_str != '\n') {
+			if (*tmpl_str == '\\' && *(tmpl_str + 1) == '`') {
+				sb_append_char(&code, '`');
+				tmpl_str++;
+			} else if (*tmpl_str == '`') {
+				bquotes = !bquotes;
+				sb_append_char(&code, '"');
+			} else {
+				if (bquotes && *tmpl_str == '"') {
+					sb_append_char(&code, '\\');
+					sb_append_char(&code, '"');
+				} else sb_append_char(&code, *tmpl_str);
+			}
+		}
 	
 		switch (*tmpl_str) {
 			case '$':
@@ -198,7 +211,7 @@ void compile_template(
 			}
 		}
 
-		if (*tmpl_str == '}' && br_cnt == 0) {
+		if (c_code && *tmpl_str == '}' && br_cnt == 0) {
 			c_code = false;
 			sb_append_str(&tmpl, code.str);
 			sb_reset(&code);
