@@ -39,7 +39,7 @@ Rendered page:
     <h1>Demo</h1>
     <h2>Hi, Michael</h2>
   </div>
-  <h3>Number of items: 8 <h3>
+  <h3>Number of items: 8</h3>
       <p>Item № 1</p>
       <p>Item № 2</p>
       <p>Item № 3</p>
@@ -55,7 +55,7 @@ Rendered page:
 ## Features
 
 - **Header-only:** Just include the header in your project.
-- **Simple template macro:** Write `HTML("...")` or `HTML(```...```)` blocks inline in your C code.
+- **Simple template macro:** Write `HTML("...")` or `HTML(`...`)` blocks inline in your C code.
 - **Template compiler:** Convert HTML templates into C macros at compile time.
 - **Minimal dependencies:** Only relies on the standard C library.
 - **StringBuilder utilities:** Efficient string building with dynamic resizing.
