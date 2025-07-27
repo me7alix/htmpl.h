@@ -1,4 +1,4 @@
-#define TMPL_IMPLEMENTATION
+#define HTMPL_IMPLEMENTATION
 #include "../htmpl.h"
 #include "templates/index.h"
 

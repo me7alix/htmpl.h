@@ -40,7 +40,7 @@ void compile_template(
 
 #endif //_HTMPL_H_
 
-#ifdef TMPL_IMPLEMENTATION
+#ifdef HTMPL_IMPLEMENTATION
 
 StringBuilder sb_create(size_t cap) {
 	StringBuilder sb;
@@ -238,4 +238,4 @@ void compile_template(
 	sb_destroy(&tmpl);
 }
 
-#endif // TMPL_IMPLEMENTATION
+#endif // HTMPL_IMPLEMENTATION
