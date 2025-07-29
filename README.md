@@ -1,29 +1,31 @@
 # htmpl.h — Lightweight C Header-Only HTML Templating
 
-`htmpl` is a lightweight, header-only C library for generating HTML in C programs using macros and string builders. It also includes a template compiler that compacts and transforms `.html`-like templates into C macros for fast and efficient embedding.
+`htmpl` is a lightweight, header-only C library for generating HTML in C programs. It includes a template compiler that compacts and transforms `.html`-like templates into C code for fast and efficient embedding.
 
 Template:
 ```
+index_tmpl(char *name, int cnt)
+
 <!DOCTYPE html>
 <head>
-    <title>Website</title>
+	<title>Website</title>
 </head>
 <body>
-    <div style="border: 1px solid #000">
-        <h1>Demo</h1>
-        $ {
-            HTML("<h2>Hi, %s</h2>", name);
-        }
-    </div>
-        
-    $ {
-        HTML("<h3>Number of items: %i</h3>", cnt);
-        for (int i = 0; i < cnt; i++) {
-            HTML(`
-                <p style="color: red;">Item № \`%i\`</p>
-            `, i + 1);
-        }
-    }
+	<div style="border: 1px solid #000;">
+		<h1>Demo</h1>
+		$ {
+			HTML("<h2>Hi, %s</h2>", name);
+		}
+	</div>
+
+	$ {
+		HTML("<h3>Number of items: %i</h3>", cnt);
+		for (int i = 0; i < cnt; i++) {
+			HTML(`
+				<p style="color: red;">Item № \`%i\`</p>
+			`, i + 1);
+		}
+	}
 </body>
 </html>
 ```
