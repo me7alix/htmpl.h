@@ -43,7 +43,6 @@ void tmpls_builder_compile_template(
 
 #endif //_HTMPL_H_
 
-#define HTMPL_IMPLEMENTATION
 #ifdef HTMPL_IMPLEMENTATION
 
 StringBuilder sb_create(size_t cap) {
