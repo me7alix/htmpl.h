@@ -65,7 +65,7 @@ Rendered page:
 ## Files
 
 - `htmpl.h` – Main header-only library (you include this).
-- `demo/templates.c` – Example of template compilation.
+- `demo/tmpls.c` – Example of template compilation.
 - `demo/main.c` – Example of generated template usage.
 
 ## Try the demo
