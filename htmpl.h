@@ -1,5 +1,5 @@
-#ifndef _HTMPL_H_ 
-#define _HTMPL_H_
+#ifndef HTMPL_H
+#define HTMPL_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +41,7 @@ void tmpls_builder_compile_template(
 	const char *input_file
 );
 
-#endif //_HTMPL_H_
+#endif // HTMPL_H
 
 #ifdef HTMPL_IMPLEMENTATION
 
