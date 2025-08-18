@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <dlfcn.h>
 
-#define TMPL_LOAD(lib, name) ((name) = dlsym(lib, #name))
+#define tmpl_load(lib, name) ((name) = dlsym(lib, #name))
 #define HTML(format, ...) { \
 	size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
 	sb_ensure_capacity(&buf, len); \
@@ -37,9 +37,9 @@ StringBuilder tmpls_builder_create();
 void tmpls_builder_write(StringBuilder *sb, const char *filepath);
 void tmpls_builder_destroy(StringBuilder *sb);
 void tmpls_builder_compile_template(
-	StringBuilder *tmpls_builder,
-	const char *input_file
-);
+		StringBuilder *tmpls_builder,
+		const char *input_file
+		);
 
 #endif // HTMPL_H
 
@@ -263,18 +263,18 @@ StringBuilder tmpls_builder_create() {
 	sb_append_str(&tmpls_builder, "#include <stdbool.h>\n");
 	sb_append_str(&tmpls_builder, "#include <stdint.h>\n");
 	sb_append_str(&tmpls_builder, "#define HTML(format, ...) { \
-size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
-sb_ensure_capacity(&buf, len); \
-sprintf(buf.str, format, ##__VA_ARGS__); \
-sb_append_str(&l_html, buf.str); \
-}\n");
-	sb_append_str(&tmpls_builder, "typedef struct {char *str;size_t cnt, cap;} StringBuilder;");
-	sb_append_str(&tmpls_builder, "StringBuilder sb_create(size_t cap) {StringBuilder sb;sb.str = (char *) malloc(cap);sb.cnt = 0;sb.cap = cap;if (sb.str) sb.str[0] = '\\0';return sb;}");
-	sb_append_str(&tmpls_builder, "void sb_ensure_capacity(StringBuilder *sb, size_t extra) {size_t required = sb->cnt + extra + 1;if (required <= sb->cap) return;while (sb->cap < required) {sb->cap *= 2;}sb->str = (char *) realloc(sb->str, sb->cap);}");
-	sb_append_str(&tmpls_builder, "void sb_append_str(StringBuilder *sb, const char *s) {size_t len = strlen(s);sb_ensure_capacity(sb, len);memcpy(sb->str + sb->cnt, s, len);sb->cnt += len;sb->str[sb->cnt] = '\\0';}");
-	sb_append_str(&tmpls_builder, "void sb_reset(StringBuilder *sb) {sb->cnt = 0;if (sb->str) sb->str[0] = '\\0';}");
-	sb_append_str(&tmpls_builder, "void sb_destroy(StringBuilder *sb) {free(sb->str);sb->str = NULL;sb->cnt = sb->cap = 0;}");
-	return tmpls_builder;
+			size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
+			sb_ensure_capacity(&buf, len); \
+			sprintf(buf.str, format, ##__VA_ARGS__); \
+			sb_append_str(&l_html, buf.str); \
+			}\n");
+sb_append_str(&tmpls_builder, "typedef struct {char *str;size_t cnt, cap;} StringBuilder;");
+sb_append_str(&tmpls_builder, "StringBuilder sb_create(size_t cap) {StringBuilder sb;sb.str = (char *) malloc(cap);sb.cnt = 0;sb.cap = cap;if (sb.str) sb.str[0] = '\\0';return sb;}");
+sb_append_str(&tmpls_builder, "void sb_ensure_capacity(StringBuilder *sb, size_t extra) {size_t required = sb->cnt + extra + 1;if (required <= sb->cap) return;while (sb->cap < required) {sb->cap *= 2;}sb->str = (char *) realloc(sb->str, sb->cap);}");
+sb_append_str(&tmpls_builder, "void sb_append_str(StringBuilder *sb, const char *s) {size_t len = strlen(s);sb_ensure_capacity(sb, len);memcpy(sb->str + sb->cnt, s, len);sb->cnt += len;sb->str[sb->cnt] = '\\0';}");
+sb_append_str(&tmpls_builder, "void sb_reset(StringBuilder *sb) {sb->cnt = 0;if (sb->str) sb->str[0] = '\\0';}");
+sb_append_str(&tmpls_builder, "void sb_destroy(StringBuilder *sb) {free(sb->str);sb->str = NULL;sb->cnt = sb->cap = 0;}");
+return tmpls_builder;
 }
 
 void tmpls_builder_write(StringBuilder *sb, const char *filepath) {
