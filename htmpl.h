@@ -6,9 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <dlfcn.h>
 
-#define tmpl_load(lib, name) ((name) = dlsym(lib, #name))
 #define HTML(format, ...) { \
 	size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
 	htmpl_sb_ensure_capacity(&buf, len); \
@@ -18,22 +16,20 @@
 
 typedef struct {
 	char   *str;
-	size_t	cnt;
-	size_t	cap;
+	size_t  cnt;
+	size_t  cap;
 } HTMPL_StringBuilder;
 
-HTMPL_StringBuilder htmpl_sb_create(size_t cap);
-void htmpl_sb_ensure_capacity(HTMPL_StringBuilder *sb, size_t extra);
 void htmpl_sb_append_str(HTMPL_StringBuilder *sb, const char *s);
+void htmpl_sb_append_strf(HTMPL_StringBuilder *sb, const char *fmt, ...);
 void htmpl_sb_append_char(HTMPL_StringBuilder *sb, char ch);
 void htmpl_sb_reset(HTMPL_StringBuilder *sb);
 void htmpl_sb_destroy(HTMPL_StringBuilder *sb);
+const char *htmpl_sb_to_str(HTMPL_StringBuilder sb);
 
 char *file_read(const char *filepath);
 void file_write(const char *filepath, char *str);
 
-void *tmpls_load(const char *libfile);
-HTMPL_StringBuilder tmpls_builder_create();
 void tmpls_builder_write(HTMPL_StringBuilder *sb, const char *filepath);
 void tmpls_builder_destroy(HTMPL_StringBuilder *sb);
 void tmpls_builder_compile_template(
@@ -45,16 +41,15 @@ void tmpls_builder_compile_template(
 
 #ifdef HTMPL_IMPLEMENTATION
 
-HTMPL_StringBuilder htmpl_sb_create(size_t cap) {
-	HTMPL_StringBuilder sb;
-	sb.str = (char *) malloc(cap);
-	sb.cnt = 0;
-	sb.cap = cap;
-	if (sb.str) sb.str[0] = '\0';
-	return sb;
-}
+void htmpl_sb_capacity_grow(HTMPL_StringBuilder *sb, size_t extra) {
+	if (!sb) return;
+	if (sb->cap == 0) {
+		if (extra <= 16) sb->cap = 32;
+		else sb->cap = extra * 2;
+		sb->str = (char *) malloc(sizeof(char) * sb->cap);
+		return;
+	}
 
-void htmpl_sb_ensure_capacity(HTMPL_StringBuilder *sb, size_t extra) {
 	size_t required = sb->cnt + extra + 1;
 	if (required <= sb->cap) return;
 	while (sb->cap < required) {
@@ -64,25 +59,56 @@ void htmpl_sb_ensure_capacity(HTMPL_StringBuilder *sb, size_t extra) {
 }
 
 void htmpl_sb_append_str(HTMPL_StringBuilder *sb, const char *s) {
+	if (!sb) return;
 	size_t len = strlen(s);
-	htmpl_sb_ensure_capacity(sb, len);
+	htmpl_sb_capacity_grow(sb, len);
 	memcpy(sb->str + sb->cnt, s, len);
 	sb->cnt += len;
 	sb->str[sb->cnt] = '\0';
 }
 
+void htmpl_sb_append_strf(HTMPL_StringBuilder *sb, const char *fmt, ...) {
+	if (!sb || !fmt) return;
+	va_list args, args_copy;
+	va_start(args, fmt);
+
+	va_copy(args_copy, args);
+
+	int len = vsnprintf(NULL, 0, fmt, args);
+	va_end(args);
+
+	if (len < 0) {
+		va_end(args_copy);
+		return;
+	}
+
+	htmpl_sb_capacity_grow(sb, (size_t)len);
+
+	vsnprintf(sb->str + sb->cnt, sb->cap - sb->cnt, fmt, args_copy);
+	sb->cnt += (size_t)len;
+
+	va_end(args_copy);
+}
+
 void htmpl_sb_append_char(HTMPL_StringBuilder *sb, char ch) {
-	htmpl_sb_ensure_capacity(sb, 1);
+	if (!sb) return;
+	htmpl_sb_capacity_grow(sb, 1);
 	sb->str[sb->cnt++] = ch;
 	sb->str[sb->cnt] = '\0';
 }
 
 void htmpl_sb_reset(HTMPL_StringBuilder *sb) {
+	if (!sb) return;
 	sb->cnt = 0;
 	if (sb->str) sb->str[0] = '\0';
 }
 
+const char *htmpl_sb_to_str(HTMPL_StringBuilder sb) {
+	return (const char *) sb.str;
+}
+
 void htmpl_sb_destroy(HTMPL_StringBuilder *sb) {
+	if (!sb) return;
 	free(sb->str);
 	sb->str = NULL;
 	sb->cnt = sb->cap = 0;
@@ -255,44 +281,12 @@ void tmpls_builder_compile_template(
 	htmpl_sb_destroy(&tmpl);
 }
 
-HTMPL_StringBuilder tmpls_builder_create() {
-	HTMPL_StringBuilder tmpls_builder = htmpl_sb_create(2048);
-	htmpl_sb_append_str(&tmpls_builder, "#include <stdlib.h>\n");
-	htmpl_sb_append_str(&tmpls_builder, "#include <stdio.h>\n");
-	htmpl_sb_append_str(&tmpls_builder, "#include <string.h>\n");
-	htmpl_sb_append_str(&tmpls_builder, "#include <stdbool.h>\n");
-	htmpl_sb_append_str(&tmpls_builder, "#include <stdint.h>\n");
-	htmpl_sb_append_str(&tmpls_builder, "#define HTML(format, ...) { \
-			size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
-			htmpl_sb_ensure_capacity(&buf, len); \
-			sprintf(buf.str, format, ##__VA_ARGS__); \
-			htmpl_sb_append_str(&l_html, buf.str); \
-			}\n");
-htmpl_sb_append_str(&tmpls_builder, "typedef struct {char *str;size_t cnt, cap;} HTMPL_StringBuilder;");
-htmpl_sb_append_str(&tmpls_builder, "HTMPL_StringBuilder htmpl_sb_create(size_t cap) {HTMPL_StringBuilder sb;sb.str = (char *) malloc(cap);sb.cnt = 0;sb.cap = cap;if (sb.str) sb.str[0] = '\\0';return sb;}");
-htmpl_sb_append_str(&tmpls_builder, "void htmpl_sb_ensure_capacity(HTMPL_StringBuilder *sb, size_t extra) {size_t required = sb->cnt + extra + 1;if (required <= sb->cap) return;while (sb->cap < required) {sb->cap *= 2;}sb->str = (char *) realloc(sb->str, sb->cap);}");
-htmpl_sb_append_str(&tmpls_builder, "void htmpl_sb_append_str(HTMPL_StringBuilder *sb, const char *s) {size_t len = strlen(s);htmpl_sb_ensure_capacity(sb, len);memcpy(sb->str + sb->cnt, s, len);sb->cnt += len;sb->str[sb->cnt] = '\\0';}");
-htmpl_sb_append_str(&tmpls_builder, "void htmpl_sb_reset(HTMPL_StringBuilder *sb) {sb->cnt = 0;if (sb->str) sb->str[0] = '\\0';}");
-htmpl_sb_append_str(&tmpls_builder, "void htmpl_sb_destroy(HTMPL_StringBuilder *sb) {free(sb->str);sb->str = NULL;sb->cnt = sb->cap = 0;}");
-return tmpls_builder;
-}
-
 void tmpls_builder_write(HTMPL_StringBuilder *sb, const char *filepath) {
 	file_write(filepath, sb->str);
 }
 
 void tmpls_builder_destroy(HTMPL_StringBuilder *sb) {
 	htmpl_sb_destroy(sb);
-}
-
-void *tmpls_load(const char *libfile) {
-	void *lib = dlopen(libfile, RTLD_LAZY | RTLD_GLOBAL);
-	if (!lib) {
-		fprintf(stderr, "dlopen error: %s\n", dlerror());
-		exit(1);
-	}
-
-	return lib;
 }
 
 #endif // HTMPL_IMPLEMENTATION

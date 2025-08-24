@@ -1,12 +1,13 @@
 #define HTMPL_IMPLEMENTATION
 #include "../htmpl.h"
 
-char *(*index_tmpl)(char *name, int cnt);
+//templates definition
+char *index_tmpl(char *name, int cnt);
+
+// templates implementation
+#include "impls.c"
 
 int main() {
-	void *tmpls = tmpls_load("./build/tmpls.so");
-	tmpl_load(tmpls, index_tmpl);
-	
 	char name[16];
 	int cnt;
 
