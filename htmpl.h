@@ -6,10 +6,11 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 #define HTML(format, ...) { \
 	size_t len = snprintf(NULL, 0, format, ##__VA_ARGS__); \
-	htmpl_sb_ensure_capacity(&buf, len); \
+	htmpl_sb_capacity_grow(&buf, len); \
 	sprintf(buf.str, format, ##__VA_ARGS__); \
 	htmpl_sb_append_str(&l_html, buf.str); \
 }
@@ -148,7 +149,7 @@ void tmpls_builder_compile_template(
 	HTMPL_StringBuilder *tmpls_builder,
 	const char *input_file
 ) {
-	HTMPL_StringBuilder compressed_html = htmpl_sb_create(128);
+	HTMPL_StringBuilder compressed_html = {0};
 	char *file_str = file_read(input_file);
 	char *file_str_p = file_str;
 	if (file_str == NULL) {
@@ -156,8 +157,8 @@ void tmpls_builder_compile_template(
 		exit(1);
 	}
 
-	HTMPL_StringBuilder tmpl_name = htmpl_sb_create(16);
-	HTMPL_StringBuilder tmpl_args = htmpl_sb_create(32);
+	HTMPL_StringBuilder tmpl_name = {0};
+	HTMPL_StringBuilder tmpl_args = {0};
 
 	bool br_fl = false;
 	for (; *file_str != ')'; file_str++) {
@@ -184,22 +185,22 @@ void tmpls_builder_compile_template(
 
 	char *tmpl_str = compressed_html.str;
 
-	HTMPL_StringBuilder tmpl = htmpl_sb_create(128);
+	HTMPL_StringBuilder tmpl = {0};
 
 	htmpl_sb_append_str(&tmpl, "char *");
 	htmpl_sb_append_str(&tmpl, tmpl_name.str);
 	htmpl_sb_append_str(&tmpl, "(");
 	htmpl_sb_append_str(&tmpl, tmpl_args.str);
 	htmpl_sb_append_str(&tmpl, ") {");
-	htmpl_sb_append_str(&tmpl, "HTMPL_StringBuilder buf = htmpl_sb_create(128),");
-	htmpl_sb_append_str(&tmpl, "l_html = htmpl_sb_create(128);");
+	htmpl_sb_append_str(&tmpl, "HTMPL_StringBuilder buf = {0},");
+	htmpl_sb_append_str(&tmpl, "l_html = {0};");
 
 	bool c_code = false;
 	bool bquotes = false;
 	int br_cnt = 0;
 
-	HTMPL_StringBuilder code = htmpl_sb_create(64);
-	HTMPL_StringBuilder html = htmpl_sb_create(64);
+	HTMPL_StringBuilder code = {0};
+	HTMPL_StringBuilder html = {0};
 
 	while (*tmpl_str != '\0') {
 		if (c_code && *tmpl_str != '\n') {

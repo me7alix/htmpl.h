@@ -1,6 +1,1 @@
-/*
- * You need to create this file and write the path of the file in tmpls_builder_write
- * so tmpls_builder will know where it should write the implementation. Then you can
- * include this file in the main.c of your project
- *
- */
+char *index_tmpl(char *name, int cnt) {HTMPL_StringBuilder buf = {0},l_html = {0};htmpl_sb_append_str(&l_html, "<!DOCTYPE html><head><title>Website</title></head><body><div style=\"border: 1px solid #000;\"><h1>Demo</h1>"); {HTML("<h2>Hi, %s</h2>", name);}htmpl_sb_append_str(&l_html, "</div>"); {HTML("<h3>Number of items: %i</h3>", cnt);for (int i = 0; i < cnt; i++) {HTML("<p style=\"color: red;\">Item № `%i`</p>", i + 1);}}htmpl_sb_append_str(&l_html, "</body></html>");htmpl_sb_destroy(&buf);return l_html.str;}
